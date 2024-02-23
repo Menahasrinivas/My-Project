@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema({
                              
                              minlength: [8,"Password must contain at least 3 characters!"],
                               maxLength: [32,"Password cannot exceed 32 characters!"],                        
-},
+                              select: false
+                            },
 role: {
               type: String,
               required:[true, "please provider your Role"], 
@@ -44,7 +45,6 @@ userSchema.pre("save", async function (next){
               }
               this.password = await bcrypt.hash(this.password, 10);
 });
-
 //COMPARING PASSWORD
 userSchema.methods.comparePassword = async function (enteredPassword){
               return await bcrypt.compare(enteredPassword, this.password);

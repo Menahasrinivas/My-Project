@@ -19,18 +19,53 @@ const user = await User.create({
               phone,
               role,
               password,
+}); 
+// res.status(200).json({
+//      success: true,
+//      message: "User registered",
+//      user,
+// });
+sendToken(user, 200, res, "User Registered Successfully!");
 });
-res.status(200).json({
-              success: true,
-              message: "User registered!",
-              user,
-});
+// sendToken(user, 200, res, "User Registered Successfully!");
+// });
 
-});
 export const login = catchAsyncError(async(req, res, next)=>{
-     const{email, password, role } = req.body;
+  const{email, password, role } = req.body;
      
-     if(!email || !password ||!role){
-              return next (new ErrorHandler("Please provide "))
-     }
-})
+      if(!email || !password ||!role){
+              return next (
+                new ErrorHandler("Please provide email, password and  role.",400)
+              );
+     };
+     const user = await User.findOne({ email }).select("+password");
+
+      if(!user){
+    return next (new ErrorHandler("Invalid Email or Password",400));
+ }
+ const isPasswordMatched = await user.comparePassword(password);
+ if (!isPasswordMatched) {
+return next (
+          new ErrorHandler("Invalid Email or Password", 400));
+ } 
+ if (user.role!== role) {
+return next (new ErrorHandler("User with this role not found!", 400));
+  }
+ sendToken(user, 200, res, "User logged in successfully!");
+ }); 
+export const logout = catchAsyncError(async(req, res, next) => {
+      res
+      .status(201)      .cookie("token","",{
+           httpOnly: true,
+           expires:newDate(Date.now()),
+     })
+      .json({
+          success: true,
+          message: "User logged out successfully!",
+     });
+     });
+     export const getUser = catchAsyncError(async(req, res, next)=>{
+      const user = req.user
+success: true,
+user
+     })
